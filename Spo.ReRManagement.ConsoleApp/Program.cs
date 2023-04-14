@@ -1,15 +1,87 @@
-﻿using System;
-using CommandLine;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.SharePoint.Client;
+using PnP.Framework;
+using Spo.ReRManagement.ConsoleApp.Options;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Spo.ReRManagement.ConsoleApp
 {
-    class Program
+    static class Program
     {
-        static void Main(string[] args)
+        private static async Task Main(string[] args)
         {
-            Parser.Default.ParseArguments<Options>(args).WithParsed(o => { Console.WriteLine($"ClientId: {o.ClientId}."); });
-            IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json").AddEnvironmentVariables().Build();
+            var configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json", false).AddJsonFile("appsettings.local.json", true).Build();
+
+            var options = configuration.Get<ConfigurationOptions>();
+            var sharePointCredentials = options.SharePointAppCredentials;
+            var remoteEventReceiver = options.RemoteEventReceiver;
+            var operation = args[0];
+
+            var authManager = new AuthenticationManager();
+
+            var context = authManager.GetACSAppOnlyContext(
+                sharePointCredentials.SiteUrl,
+                sharePointCredentials.ClientId,
+                sharePointCredentials.ClientSecret);
+
+            context.Load(context.Web);
+            var list = context.Web.GetListByName(remoteEventReceiver.ListName);
+            await context.ExecuteQueryRetryAsync();
+
+            if (operation == "add")
+            {
+                foreach (var receiverTypeStr in remoteEventReceiver.ReceiverTypeArray)
+                {
+                    if (Enum.TryParse<EventReceiverType>(receiverTypeStr, out var receiverType))
+                    {
+                        await AddEventReceiverAsync(list, remoteEventReceiver.Name, $"{remoteEventReceiver.ReceiverUrl}", receiverType);
+                    }
+                }
+            }
+
+            if (operation == "remove") { await RemoveEventReceiverAsync(list, remoteEventReceiver.Name); }
+        }
+
+        private static async Task AddEventReceiverAsync(List list, string receiverName, string receiverUrl, EventReceiverType type)
+        {
+            var eventReceiver = new EventReceiverDefinitionCreationInformation
+            {
+                EventType = type,
+                ReceiverName = receiverName,
+                ReceiverUrl = receiverUrl,
+                SequenceNumber = 1000,
+            };
+
+            list.EventReceivers.Add(eventReceiver);
+
+            await list.Context.ExecuteQueryRetryAsync();
+        }
+
+        private static async Task RemoveEventReceiverAsync(List list, string receiverName)
+        {
+            var receivers = list.EventReceivers;
+            list.Context.Load(receivers);
+
+            await list.Context.ExecuteQueryRetryAsync();
+
+            var toDelete = receivers.ToList()
+                                    .FindAll(r => r.ReceiverName == receiverName && r.ReceiverId == new Guid("6fd09b8b-843b-474d-a390-a307a67bfacb"));
+
+            var receiverIds = new List<Guid>();
+
+            // get the ids to remove into a list
+            foreach (var receiver in toDelete) { receiverIds.Add(receiver.ReceiverId); }
+
+            // iterate through Id list and remove
+            foreach (var receiverId in receiverIds)
+            {
+                var receiverToDelete = receivers.ToList().First(r => r.ReceiverId == receiverId);
+                receiverToDelete.DeleteObject();
+                await list.Context.ExecuteQueryRetryAsync();
+            }
         }
     }
 }
