@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33516.290
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spo.ReRManagement.ConsoleApp", "Spo.ReRManagement.ConsoleApp\Spo.ReRManagement.ConsoleApp.csproj", "{FB746E66-E5B0-4418-A8B0-B0109B2CBE16}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FB746E66-E5B0-4418-A8B0-B0109B2CBE16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB746E66-E5B0-4418-A8B0-B0109B2CBE16}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB746E66-E5B0-4418-A8B0-B0109B2CBE16}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB746E66-E5B0-4418-A8B0-B0109B2CBE16}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {49A51A57-1360-45B8-A62E-4A48062DE723}
+	EndGlobalSection
+EndGlobal
