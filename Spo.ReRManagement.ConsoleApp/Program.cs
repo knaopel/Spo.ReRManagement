@@ -49,10 +49,7 @@ namespace Spo.ReRManagement.ConsoleApp
         {
             var eventReceiver = new EventReceiverDefinitionCreationInformation
             {
-                EventType = type,
-                ReceiverName = receiverName,
-                ReceiverUrl = receiverUrl,
-                SequenceNumber = 1000,
+                EventType = type, ReceiverName = receiverName, ReceiverUrl = receiverUrl, SequenceNumber = 1000,
             };
 
             list.EventReceivers.Add(eventReceiver);
@@ -67,8 +64,7 @@ namespace Spo.ReRManagement.ConsoleApp
 
             await list.Context.ExecuteQueryRetryAsync();
 
-            var toDelete = receivers.ToList()
-                                    .FindAll(r => r.ReceiverName == receiverName && r.ReceiverId == new Guid("6fd09b8b-843b-474d-a390-a307a67bfacb"));
+            var toDelete = receivers.ToList().FindAll(r => r.ReceiverName == receiverName);
 
             var receiverIds = new List<Guid>();
 
