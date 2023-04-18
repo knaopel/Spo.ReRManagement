@@ -6,7 +6,7 @@
     },
     "Spo.ReRManagement.ConsoleApp Remove": {
       "commandName": "Project",
-      "commandLineArgs": "remove -u https://plantemoran.sharepoint.com/sites/2000024 -l \"EZT Tasks\" -n TestEventReceiver3"
+      "commandLineArgs": "remove"
     }
   }
 }
