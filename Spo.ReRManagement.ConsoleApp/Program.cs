@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CommandLine;
 
 namespace Spo.ReRManagement.ConsoleApp
 {
@@ -13,36 +14,40 @@ namespace Spo.ReRManagement.ConsoleApp
     {
         private static async Task Main(string[] args)
         {
-            var configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json", false).AddJsonFile("appsettings.local.json", true).Build();
+            Type[] types = { typeof(AddReceiverOptions) };
+            var result = Parser.Default.ParseArguments(args, types);
+            await result.WithParsedAsync(RunAsync);
 
+            //if (operation == "remove") { await RemoveEventReceiverAsync(list, remoteEventReceiver.Name); }
+        }
+
+        private static async Task RunAsync(object obj)
+        {
+            var configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json", false).AddJsonFile("appsettings.local.json", true).Build();
             var options = configuration.Get<ConfigurationOptions>();
             var sharePointCredentials = options.SharePointAppCredentials;
-            var remoteEventReceiver = options.RemoteEventReceiver;
-            var operation = args[0];
-
             var authManager = new AuthenticationManager();
+            var baseOptions = (BaseEventReceiverOptions)obj;
 
-            var context = authManager.GetACSAppOnlyContext(
-                sharePointCredentials.SiteUrl,
-                sharePointCredentials.ClientId,
-                sharePointCredentials.ClientSecret);
+            var context = authManager.GetACSAppOnlyContext(baseOptions.SiteUrl, sharePointCredentials.ClientId, sharePointCredentials.ClientSecret);
 
             context.Load(context.Web);
-            var list = context.Web.GetListByName(remoteEventReceiver.ListName);
+            var list = context.Web.GetListByName(baseOptions.ListName);
             await context.ExecuteQueryRetryAsync();
 
-            if (operation == "add")
+            switch (obj)
             {
-                foreach (var receiverTypeStr in remoteEventReceiver.ReceiverTypeArray)
-                {
-                    if (Enum.TryParse<EventReceiverType>(receiverTypeStr, out var receiverType))
+                case AddReceiverOptions a:
+                    foreach (var receiverTypeStr in a.ReceiverTypes)
                     {
-                        await AddEventReceiverAsync(list, remoteEventReceiver.Name, $"{remoteEventReceiver.ReceiverUrl}", receiverType);
+                        if (Enum.TryParse<EventReceiverType>(receiverTypeStr, out var receiverType))
+                        {
+                            await AddEventReceiverAsync(list, a.ReceiverName, $"{a.ReceiverUrl}", receiverType);
+                        }
                     }
-                }
-            }
 
-            if (operation == "remove") { await RemoveEventReceiverAsync(list, remoteEventReceiver.Name); }
+                    break;
+            }
         }
 
         private static async Task AddEventReceiverAsync(List list, string receiverName, string receiverUrl, EventReceiverType type)
