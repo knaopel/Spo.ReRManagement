@@ -14,11 +14,9 @@ namespace Spo.ReRManagement.ConsoleApp
     {
         private static async Task Main(string[] args)
         {
-            Type[] types = { typeof(AddReceiverOptions) };
+            Type[] types = { typeof(AddReceiverOptions), typeof(RemoveReceiverOptions), typeof(ListReceiversOptions) };
             var result = Parser.Default.ParseArguments(args, types);
             await result.WithParsedAsync(RunAsync);
-
-            //if (operation == "remove") { await RemoveEventReceiverAsync(list, remoteEventReceiver.Name); }
         }
 
         private static async Task RunAsync(object obj)
@@ -27,7 +25,7 @@ namespace Spo.ReRManagement.ConsoleApp
             var options = configuration.Get<ConfigurationOptions>();
             var sharePointCredentials = options.SharePointAppCredentials;
             var authManager = new AuthenticationManager();
-            var baseOptions = (BaseEventReceiverOptions)obj;
+            var baseOptions = (BaseSharePointListOptions)obj;
 
             using (var context = authManager.GetACSAppOnlyContext(
                        baseOptions.SiteUrl,
@@ -40,17 +38,39 @@ namespace Spo.ReRManagement.ConsoleApp
 
                 switch (obj)
                 {
-                    case AddReceiverOptions a:
-                        foreach (var receiverTypeStr in a.ReceiverTypes)
+                    case ListReceiversOptions _:
+                        await ListReceiversAsync(list);
+
+                        break;
+
+                    case AddReceiverOptions addReceiverOptions:
+                        foreach (var receiverTypeStr in addReceiverOptions.ReceiverTypes)
                         {
                             if (Enum.TryParse<EventReceiverType>(receiverTypeStr, out var receiverType))
                             {
-                                await AddEventReceiverAsync(list, a.ReceiverName, $"{a.ReceiverUrl}", receiverType);
+                                await AddEventReceiverAsync(list, addReceiverOptions.ReceiverName, $"{addReceiverOptions.ReceiverUrl}", receiverType);
                             }
                         }
 
                         break;
+
+                    case RemoveReceiverOptions removeReceiverOptions:
+                        await RemoveEventReceiverAsync(list, removeReceiverOptions.ReceiverName);
+
+                        break;
                 }
+            }
+        }
+
+        private static async Task ListReceiversAsync(List list)
+        {
+            var eventReceivers = list.EventReceivers;
+            list.Context.Load(eventReceivers);
+            await list.Context.ExecuteQueryRetryAsync();
+
+            foreach (var receiver in eventReceivers)
+            {
+                Console.WriteLine($"{receiver.ReceiverName} - EventType: {receiver.EventType} - {receiver.ReceiverUrl}");
             }
         }
 

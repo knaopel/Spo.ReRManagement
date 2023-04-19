@@ -6,7 +6,11 @@
     },
     "Spo.ReRManagement.ConsoleApp Remove": {
       "commandName": "Project",
-      "commandLineArgs": "remove"
+      "commandLineArgs": "remove --siteUrl https://krotech.sharepoint.com/sites/dev --listName \"EZT Tasks\" --receiverName Ez.Track.Receiver.LCL"
+    },
+    "Spo.ReRManagement.ConsoleApp List": {
+      "commandName": "Project",
+      "commandLineArgs": "ls --siteUrl https://krotech.sharepoint.com/sites/dev --listName \"EZT Tasks\""
     }
   }
 }
