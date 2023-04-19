@@ -2,7 +2,7 @@
   "profiles": {
     "Spo.ReRManagement.ConsoleApp Add": {
       "commandName": "Project",
-      "commandLineArgs": "add"
+      "commandLineArgs": "add --siteUrl https://krotech.sharepoint.com/sites/dev --listName \"EZT Tasks\" --receiverName Ez.Track.Receiver.LCL --receiverTypes ItemAdded,ItemUpdated --receiverUrl https://kot-ezt.ngrok.io/api/RemoteEventActions"
     },
     "Spo.ReRManagement.ConsoleApp Remove": {
       "commandName": "Project",

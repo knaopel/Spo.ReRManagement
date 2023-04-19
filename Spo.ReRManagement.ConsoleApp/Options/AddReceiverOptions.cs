@@ -9,7 +9,7 @@ namespace Spo.ReRManagement.ConsoleApp.Options
         [Option('t', "receiverTypes", Required = true, Separator = ',', HelpText = "A comma separated list of types to add.")]
         public IEnumerable<string> ReceiverTypes { get; set; }
 
-        [Option('r', "receiverUrl")]
+        [Option('r', "receiverUrl", Required = true, HelpText = "The Url of the Event Receiver.")]
         public string ReceiverUrl { get; set; }
     }
 }

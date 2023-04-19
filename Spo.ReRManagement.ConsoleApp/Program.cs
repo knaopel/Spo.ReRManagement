@@ -29,24 +29,28 @@ namespace Spo.ReRManagement.ConsoleApp
             var authManager = new AuthenticationManager();
             var baseOptions = (BaseEventReceiverOptions)obj;
 
-            var context = authManager.GetACSAppOnlyContext(baseOptions.SiteUrl, sharePointCredentials.ClientId, sharePointCredentials.ClientSecret);
-
-            context.Load(context.Web);
-            var list = context.Web.GetListByName(baseOptions.ListName);
-            await context.ExecuteQueryRetryAsync();
-
-            switch (obj)
+            using (var context = authManager.GetACSAppOnlyContext(
+                       baseOptions.SiteUrl,
+                       sharePointCredentials.ClientId,
+                       sharePointCredentials.ClientSecret))
             {
-                case AddReceiverOptions a:
-                    foreach (var receiverTypeStr in a.ReceiverTypes)
-                    {
-                        if (Enum.TryParse<EventReceiverType>(receiverTypeStr, out var receiverType))
-                        {
-                            await AddEventReceiverAsync(list, a.ReceiverName, $"{a.ReceiverUrl}", receiverType);
-                        }
-                    }
+                context.Load(context.Web);
+                var list = context.Web.GetListByName(baseOptions.ListName);
+                await context.ExecuteQueryRetryAsync();
 
-                    break;
+                switch (obj)
+                {
+                    case AddReceiverOptions a:
+                        foreach (var receiverTypeStr in a.ReceiverTypes)
+                        {
+                            if (Enum.TryParse<EventReceiverType>(receiverTypeStr, out var receiverType))
+                            {
+                                await AddEventReceiverAsync(list, a.ReceiverName, $"{a.ReceiverUrl}", receiverType);
+                            }
+                        }
+
+                        break;
+                }
             }
         }
 
