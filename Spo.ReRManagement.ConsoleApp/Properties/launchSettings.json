@@ -2,7 +2,7 @@
   "profiles": {
     "Spo.ReRManagement.ConsoleApp Add": {
       "commandName": "Project",
-      "commandLineArgs": "add --siteUrl https://krotech.sharepoint.com/sites/dev --listName \"EZT Tasks\" --receiverName Ez.Track.Receiver.LCL --receiverTypes ItemAdded,ItemUpdated --receiverUrl https://kot-ezt.ngrok.io/api/RemoteEventActions"
+      "commandLineArgs": "add --siteUrl https://plantemoran.sharepoint.com/sites/8087530 --listName \"PM only Documents\" --receiverName PMFA-npodelete-DEV --receiverTypes ItemDeleting --receiverUrl https://pmfa-nodelete.ngrok.io/ItemDeleting.svc"
     },
     "Spo.ReRManagement.ConsoleApp Remove": {
       "commandName": "Project",
@@ -10,7 +10,7 @@
     },
     "Spo.ReRManagement.ConsoleApp List": {
       "commandName": "Project",
-      "commandLineArgs": "ls --siteUrl https://krotech.sharepoint.com/sites/dev --listName \"EZT Tasks\""
+      "commandLineArgs": "ls --siteUrl https://plantemoran.sharepoint.com/sites/8087530 --listName \"PM only Documents\""
     }
   }
 }
